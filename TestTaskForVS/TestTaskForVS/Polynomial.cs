@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ExpressionPolynomial
+namespace ExpressionParser
 {
     public class Polynomial
     {
         public class Term
         {
             const string varNames = "abcdefghijklmnopqrstuvwxyz";
-            const int firstVarValue = (int)varNames[0];
-            const int lastVarValue = (int)varNames[varNames.Length - 1];
+            static int firstVarValue = (int)varNames[0];
+            static int lastVarValue = (int)varNames[varNames.Length - 1];
 
             public double coeff = 1;
             int[] vars = new int[varNames.Length];
@@ -45,10 +45,58 @@ namespace ExpressionPolynomial
                 return true;
             }
 
+            public override string ToString()
+            {
+                var res = "";
+                if (coeff < 0)
+                {
+                    res += "-";
+                }
+                return res + ToStringUnsigned();
+            }
 
+            public string ToStringUnsigned()
+            {
+                var res = "";
+                var absCoeff = Math.Abs(coeff);
+                if (absCoeff != 1)
+                {
+                    res = absCoeff.ToString();
+                }
+                for (int i = 0; i < varNames.Length; i++)
+                {
+                    if (vars[i] > 0)
+                    {
+                        res += varNames[i];
+                        if (vars[i] != 1)
+                        {
+                            res += '^' + vars[i].ToString();
+                        }
+                    }
+                }
+                return res;
+            }
+
+            public int GetMaxPow()
+            {
+                var res = Int32.MinValue;
+                for (int i = 0; i < varNames.Length; i++)
+                {
+                    if (vars[i] > res)
+                    {
+                        res = vars[i];
+                    }
+                }
+                return res;
+            }
         }
 
-        List<Term> terms = new List<Term>();
+        public List<Term> terms {get; private set;}
+
+        public Polynomial()
+        {
+            terms = new List<Term>();
+        }
 
         //varItem[] coeffs = new varItem[1 + varNames.Length];
 
@@ -74,10 +122,11 @@ namespace ExpressionPolynomial
             bool haveIdentical = false;
             foreach (var ourTerm in this.terms)
             {
-                if (term.IsIdenticalTo(term))
+                if (ourTerm.IsIdenticalTo(term))
                 {
-                    term.coeff += term.coeff;
+                    ourTerm.coeff += term.coeff;
                     haveIdentical = true;
+                    break;
                 }
             }
             if (!haveIdentical)
@@ -96,5 +145,14 @@ namespace ExpressionPolynomial
             term.coeff = value;
             AddTerm(term);
         }
+
+        public void InverseSigns()
+        {
+            foreach(var term in this.terms)
+            {
+                term.coeff *= -1;
+            }
+        }
+
     }
 }
