@@ -30,7 +30,6 @@ namespace ExpressionParser
              OperandMember1(LeftExpression)
              OperandMember1 OperandMember2 OperandMember3
              
-            
          OperandMember1
             Variable
             Coeff
@@ -39,20 +38,19 @@ namespace ExpressionParser
             VarName
             VarName ^ power
              
-
          */
 
 
-        public TreeItem Parse(string expression)
+        public Tree.Item Parse(string expression)
         {
             this.expression = expression;
             pos = 0;
 
-            TreeBinaryOperation ti = new TreeBinaryOperation();
+            Tree.BinaryOperation ti = new Tree.BinaryOperation();
             ti.a = ReadExpression(UnaryAllowed: true);
             if (!HasChar() || GetChar() != '=')
             {
-                throw new Exception("Expected '='");
+                throw new ArgumentException("Expected '='");
             }
             NextChar();
             ti.op = Operation.equals;
@@ -60,9 +58,9 @@ namespace ExpressionParser
             return ti;
         }
 
-        TreeItem ReadExpression(bool UnaryAllowed = false)
+        Tree.Item ReadExpression(bool UnaryAllowed = false)
         {
-            TreeItem leftOperand = null;
+            Tree.Item leftOperand = null;
             while (HasChar())
             {
                 var ch = GetChar();
@@ -77,33 +75,34 @@ namespace ExpressionParser
                         if (UnaryAllowed)
                         {
                             NextChar();
-                            leftOperand = new TreeUnaryOperation()
+                            leftOperand = new Tree.UnaryOperation()
                             {
                                 op = ch == '+' ? Operation.plus : Operation.minus,
-                                a = ReadExpression(),
+                                a = ReadOperand(),
                             };
                         }
                         else
                         {
-                            throw new Exception(String.Format("Char '{0}' not expected. Expected: operand.", ch));
+                            throw new ArgumentException(String.Format("Char '{0}' not expected. Expected: operand.", ch));
                         }
                     }
                     else
                     {
                         NextChar();
-                        return new TreeBinaryOperation()
+                        return new Tree.BinaryOperation()
                         {
                             a = leftOperand,
                             b = ReadExpression(),
                             op = ch == '+' ? Operation.plus : Operation.minus,
                         };
+
                     }
                 }
                 else if (ch == '=' || ch == ')')
                 {
                     if (leftOperand == null)
                     {
-                        throw new Exception(String.Format("Char '{0}' not expected. Expression must appear before '{0}'", ch));
+                        throw new ArgumentException(String.Format("Char '{0}' not expected. Expression must appear before '{0}'", ch));
                     }
                     else
                     {
@@ -118,22 +117,22 @@ namespace ExpressionParser
                     }
                     else
                     {
-                        throw new Exception("Expected one of {'+','-','='})");
+                        throw new ArgumentException("Expected one of {'+','-','='})");
                     }
                 }
             };
 
             if (leftOperand == null)
             {
-                throw new Exception("Expression expected. Found end of string.");
+                throw new ArgumentException("Expression expected. Found end of string.");
             }
 
             return leftOperand;
         }
 
-        TreeItem ReadOperand()
+        Tree.Item ReadOperand()
         {
-            TreeItem curOperand = null;
+            Tree.Item curOperand = null;
             while (HasChar())
             {
                 var ch = GetChar();
@@ -145,7 +144,7 @@ namespace ExpressionParser
                 {
                     if (curOperand == null)
                     {
-                        throw new Exception(String.Format("Char '{0}' not expected. Expected: OperandMember or bracketed expression.", ch));
+                        throw new ArgumentException(String.Format("Char '{0}' not expected. Expected: OperandMember or bracketed expression.", ch));
                     }
                     else
                     {
@@ -158,11 +157,11 @@ namespace ExpressionParser
                     var exprRes = ReadExpression(UnaryAllowed: true);
                     if (HasChar() && GetChar() != ')')
                     {
-                        throw new Exception("Expected end bracket ')'");
+                        throw new ArgumentException("Expected end bracket ')'");
                     }
                     if (curOperand != null)
                     {
-                        curOperand = new TreeBinaryOperation()
+                        curOperand = new Tree.BinaryOperation()
                         {
                             a = curOperand,
                             b = exprRes,
@@ -183,7 +182,7 @@ namespace ExpressionParser
                     }
                     else
                     {
-                        curOperand = new TreeBinaryOperation()
+                        curOperand = new Tree.BinaryOperation()
                         {
                             a = curOperand,
                             b = ReadOperandMember(),
@@ -194,22 +193,22 @@ namespace ExpressionParser
             };
             if (curOperand == null)
             {
-                throw new Exception("Operand expected. Found end of string.");
+                throw new ArgumentException("Operand expected. Found end of string.");
             }
 
             return curOperand;
         }
 
-        TreeItem ReadOperandMember()
+        Tree.Item ReadOperandMember()
         {
-            TreeTerm operandMember = null;
+            Tree.Term operandMember = null;
             string curVarName = null;
 
             Action<int> AddCurrVar = (int pow) =>
             {
                 if (operandMember == null)
                 {
-                    operandMember = new TreeTerm { term = new Polynomial.Term { coeff = 1 } };
+                    operandMember = new Tree.Term { term = new Polynomial.Term { coeff = 1 } };
                 }
                 operandMember.term.AddVar(curVarName, pow);
                 curVarName = null;
@@ -219,7 +218,7 @@ namespace ExpressionParser
             {
                 if (operandMember == null)
                 {
-                    operandMember = new TreeTerm { term = new Polynomial.Term { coeff = 1 } };
+                    operandMember = new Tree.Term { term = new Polynomial.Term { coeff = 1 } };
                 }
                 operandMember.term.coeff *= coeff;
             };
@@ -236,7 +235,7 @@ namespace ExpressionParser
                 {
                     if (operandMember == null)
                     {
-                        throw new Exception(String.Format("Char '{0}' not expected. Expected: variable or number", ch));
+                        throw new ArgumentException(String.Format("Char '{0}' not expected. Expected: variable or number", ch));
                     }
                     else
                     {
@@ -253,7 +252,7 @@ namespace ExpressionParser
                     curVarName = ch.ToString();
                     if (!IsVariable(curVarName))
                     {
-                        throw new Exception("Invalid variable name. Allowed only lower case letters from 'a' to 'z'");
+                        throw new ArgumentException("Invalid variable name. Allowed only lower case letters from 'a' to 'z'");
                     }
                     NextChar();
                     int pow = 1;
@@ -267,7 +266,7 @@ namespace ExpressionParser
             }
             if (operandMember == null)
             {
-                throw new Exception("OperandMember expected. Found end of string.");
+                throw new ArgumentException("OperandMember expected. Found end of string.");
             }
             return operandMember;
         }
@@ -297,7 +296,7 @@ namespace ExpressionParser
             }
             else
             {
-                throw new Exception("Integer expected. Invalid integer: " + numStr);
+                throw new ArgumentException("Integer expected. Invalid integer: " + numStr);
             }
         }
 
@@ -326,7 +325,7 @@ namespace ExpressionParser
             }
             else
             {
-                throw new Exception("Floating-point number expected. Found invalid number: " + numStr);
+                throw new ArgumentException("Floating-point number expected. Found invalid number: " + numStr);
             }
         }
 
@@ -351,61 +350,6 @@ namespace ExpressionParser
         }
     }
 
-
-    public interface TreeItem
-    {
-        Polynomial Process();
-    }
-
-    public class TreeBinaryOperation : TreeItem
-    {
-        public Operation op;
-        public TreeItem a;
-        public TreeItem b;
-
-        public Polynomial Process()
-        {
-            var pol1 = a.Process();
-            var pol2 = b.Process();
-            
-            if (op == Operation.equals || op == Operation.minus)
-            {
-                pol2.InverseSigns();
-            }
-
-            pol1.AppendPolynomial(pol2);
-
-            return pol1;
-        }
-    }
-
-    public class TreeUnaryOperation : TreeItem
-    {
-        public Operation op;
-        public TreeItem a;
-        public Polynomial Process()
-        {
-            var pol = a.Process();
-            if (op == Operation.minus)
-            {
-                pol.InverseSigns();
-            }
-            return pol;
-        }
-    }
-
-    public class TreeTerm : TreeItem
-    {
-        public Polynomial.Term term;
-        public Polynomial Process()
-        {
-            Polynomial pol = new Polynomial();
-            pol.AddTerm(term);
-            return pol;
-        }
-    }
-
-    public enum Operation { plus, minus, mult, divide, power, equals };
 
 }
 

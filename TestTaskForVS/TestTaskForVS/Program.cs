@@ -42,9 +42,16 @@ namespace TestTaskForVS
             var lines = File.ReadLines(filename); //note: ReadLines do not load whole file in memory
             foreach(var line in lines)
             {
-                outWriter.WriteLine(ProcessExpression(line));
+                try
+                {
+                    outWriter.WriteLine(ProcessExpression(line));
+                }
+                catch (Exception e)
+                {
+                    outWriter.WriteLine("Error: " + e.Message);
+                }
             }
-
+            outWriter.Close();
 
             //по кодировке - только английские символы, кириллица не допускается
             //потоковое чтение и запись результата
@@ -56,13 +63,22 @@ namespace TestTaskForVS
             {
                 Console.WriteLine("Please input an expression. If you want leave - press Ctrl+C");
                 var expr = Console.ReadLine();
-                Console.WriteLine("Result: " + ProcessExpression(expr));
+                try
+                {
+                    Console.WriteLine("Result: " + ProcessExpression(expr));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error: " + e.Message);
+                }
             }
         }
 
         static string ProcessExpression(string expr)
         {
-            return new Expression(expr).ToStandardForm();
+            var e = new Expression(expr);
+            var polynomial = e.Process();
+            return polynomial.ToStandardForm();
         }
 
     }
