@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -322,7 +323,7 @@ namespace ExpressionParser
             }
             var numStr = new String(numChars, 0, numPos);
             double res = 0;
-            if (double.TryParse(numStr, out res))
+            if (double.TryParse(numStr, NumberStyles.Number, CultureInfo.InvariantCulture, out res))
             {
                 return res;
             }
