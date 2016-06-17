@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -91,7 +92,7 @@ namespace ExpressionParser
                      * 1) have vars, but coeff==1 -> do not show coeff
                      * 2) empty res -> no vars -> show 1 
                      */
-                    res = absCoeff.ToString();
+                    res = absCoeff.ToString(CultureInfo.InvariantCulture) + res;
                 }
 
                 return res;

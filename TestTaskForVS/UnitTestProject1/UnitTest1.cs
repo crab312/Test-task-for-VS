@@ -28,6 +28,7 @@ namespace UnitTestProject1
 
             /* Test floating point */
             TestNumExpression("10.10000=1.02", 9.08);
+            TestNumExpression("0.01=0", 0.01);
 
             /* Tests with 2 variables */
             TestExpressionXY("x+1=0", x: 1, y: 0, expectedResult: 2);
@@ -35,6 +36,9 @@ namespace UnitTestProject1
             TestExpressionXY("x+1 -(-y) = 10x", x: 100, y: 200, expectedResult: -699);
             TestExpressionXY("-x^2-2xy+y^3=y-10x", 1, 2, 11);
 
+            /* Test polynom standartization */
+            CheckPolynom("x + 2.1x^2 = 100x - 4x^2", "6.1x^2 - 99x = 0");
+            CheckPolynom("10 - x^3 + 8x^4 = 10x - 1 + 5x^3", "8x^4 - 6x^3 - 10x + 11 = 0");
         }
 
         [TestMethod]
@@ -57,6 +61,16 @@ namespace UnitTestProject1
             var polynom = o.Process();
             var calcRes = polynom.Calculate(varValues);
             Assert.AreEqual(expectedResult, calcRes);
+        }
+
+        [TestMethod]
+        public void CheckPolynom(string expr, string expectedResult)
+        {
+            var exprObj = new Expression(expr);
+            var res = exprObj.Process().ToStandardForm();
+            res = res.Replace(" ", "");
+            expectedResult = expectedResult.Replace(" ","");
+            Assert.AreEqual(expectedResult, res);
         }
     }
 }

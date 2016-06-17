@@ -267,6 +267,10 @@ namespace ExpressionParser
                     }
                     AddCurrVar(pow);
                 }
+                else
+                {
+                    throw new ArgumentException(String.Format("Char '{0}' not expected.", ch));
+                }
             }
             if (operandMember == null)
             {
