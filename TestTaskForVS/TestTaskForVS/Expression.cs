@@ -20,12 +20,6 @@ namespace TestTaskForVS
             var temp = 0;
         }
 
-        //bool IsCorrectNumber(string token)
-        //{
-
-        //    Double.TryParse(token,
-        //}
-
         public Expression(string stringExpression)
         {
             BuildExpressionTree(stringExpression);

@@ -14,6 +14,21 @@ namespace ExpressionParser
             Polynomial Process();
         }
 
+        public class UnaryOperation : Item
+        {
+            public Operation op;
+            public Item a;
+            public Polynomial Process()
+            {
+                var pol = a.Process();
+                if (op == Operation.minus)
+                {
+                    pol.InverseSigns();
+                }
+                return pol;
+            }
+        }
+
         public class BinaryOperation : Item
         {
             public Operation op;
@@ -32,21 +47,6 @@ namespace ExpressionParser
                 pol1.AppendPolynomial(pol2);
 
                 return pol1;
-            }
-        }
-
-        public class UnaryOperation : Item
-        {
-            public Operation op;
-            public Item a;
-            public Polynomial Process()
-            {
-                var pol = a.Process();
-                if (op == Operation.minus)
-                {
-                    pol.InverseSigns();
-                }
-                return pol;
             }
         }
 

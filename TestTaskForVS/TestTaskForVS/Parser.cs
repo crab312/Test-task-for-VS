@@ -11,6 +11,8 @@ namespace ExpressionParser
         string expression;
         int pos;
 
+        Tree.Item curNode;
+
         /* 
              
          EqExpr
@@ -89,12 +91,13 @@ namespace ExpressionParser
                     else
                     {
                         NextChar();
-                        return new Tree.BinaryOperation()
+                        var node = new Tree.BinaryOperation()
                         {
                             a = leftOperand,
-                            b = ReadExpression(),
+                            b = ReadOperand(),
                             op = ch == '+' ? Operation.plus : Operation.minus,
                         };
+                        leftOperand = node;
 
                     }
                 }
