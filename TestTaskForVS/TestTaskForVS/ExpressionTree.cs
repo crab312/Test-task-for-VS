@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ExpressionParser
 {
-    public enum Operation { plus, minus, mult, divide, power, equals };
+    public enum Operation { plus, minus, mult, equals };
     public class Tree
     {
         public interface Item
@@ -44,7 +44,14 @@ namespace ExpressionParser
                     pol2.InverseSigns();
                 }
 
-                pol1.AppendPolynomial(pol2);
+                if (op == Operation.mult)
+                {
+                    pol1 = Polynomial.MultiplyPolynomial(pol1, pol2);
+                }
+                else
+                {
+                    pol1.AppendPolynomial(pol2);
+                }
 
                 return pol1;
             }

@@ -39,6 +39,17 @@ namespace ExpressionParser
                 vars[GetVarIndex(varName[0])] += pow;
             }
 
+            public static Term Multiply(Term term1, Term term2)
+            {
+                var res = new Term();
+                for (var i = 0; i < varNames.Length; i++)
+                {
+                    res.vars[i] += term1.vars[i] + term2.vars[i];
+                }
+                res.coeff = term1.coeff * term2.coeff;
+                return res;
+            }
+
             /// <summary>
             /// Returns true if two terms have the same sets of variables
             /// </summary>
@@ -123,11 +134,12 @@ namespace ExpressionParser
                     var varIndx = GetVarIndex(varValue.varName[0]);
                     if(vars[varIndx] != 0)
                     {
-                        res = coeff * Math.Pow(varValue.value, vars[varIndx]);
+                        res *= Math.Pow(varValue.value, vars[varIndx]);
                     }
                 }
                 return res;
             }
+
         }
 
         public struct VarValue
@@ -156,6 +168,20 @@ namespace ExpressionParser
             {
                 AddTerm(term);
             }
+        }
+
+        public static Polynomial MultiplyPolynomial(Polynomial pol1, Polynomial pol2)
+        {
+            Polynomial res = new Polynomial();
+            foreach (var term1 in pol1.terms)
+            {
+                foreach (var term2 in pol2.terms)
+                {
+                    var term = Term.Multiply(term1, term2);
+                    res.AddTerm(term);
+                }
+            }
+            return res;
         }
 
         /// <summary>
@@ -267,5 +293,9 @@ namespace ExpressionParser
              */
         }
 
+        public override string ToString()
+        {
+            return ToStandardForm();
+        }
     }
 }
